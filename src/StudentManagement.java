@@ -56,6 +56,7 @@ public class StudentManagement {
 		System.out.printf("Name: %s\n", student.getName());
 		System.out.printf("ID: %d\n", student.getId());
 		System.out.printf("Mean marks: %.2f\n", student.getMeanExamMarks());
+		System.out.println(student);
 	}
 
 }
