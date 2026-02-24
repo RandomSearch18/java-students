@@ -1,62 +1,35 @@
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Arrays;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 
 public class StudentManagement {
+	static String studentsFile = "StudentsData.txt";
 
-	public static void main(String[] args) {
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("Enter student name: ");
-		String name = scanner.nextLine();
-		System.out.print("Student ID: #");
-		int id = scanner.nextInt();
-		System.out.println("Enter exam marks, ending with a blank line");
-		ArrayList<Double> marks = new ArrayList<Double>();
-		scanner.nextLine(); // the first line we receive is always an empty line for some reason
-		String line;
-		while (true) {
-			System.out.print("> ");
-			line = scanner.nextLine();
-			if (line.isEmpty()) break;
-			try {
-				Double mark = Double.parseDouble(line);				
-				marks.add(new Double(mark));
-			} catch(NumberFormatException e) {
-				System.out.println("Ignored invalid number!");
-			}
+	public static void main(String[] args) throws IOException {
+		CSVFormat fileFormat = CSVFormat.DEFAULT.builder()
+				.setDelimiter(';')
+				.setIgnoreSurroundingSpaces(true)
+				.setHeader("name", "studentId", "mark1", "mark2", "mark3", "mark4")
+				.get();
+		Reader file = new FileReader(studentsFile);
+		Iterable<CSVRecord> studentRecords = fileFormat.parse(file);
+		ArrayList<Student> students = new ArrayList<Student>();
+		for (CSVRecord record: studentRecords) {
+			Student student = new Student(record.get("name"), Integer.parseInt(record.get("studentId")), new double[] {
+					Double.parseDouble(record.get("mark1")),
+					Double.parseDouble(record.get("mark2")),
+					Double.parseDouble(record.get("mark3")),
+					Double.parseDouble(record.get("mark4")),
+			});
+			students.add(student);
 		}
-		double[] marksArray = marks.stream().mapToDouble(i -> i).toArray();
-		Student student = new Student(name, id, marksArray);
-		System.out.println("Student created successfully");
-		System.out.println();
-		
-		// Ask user if they want to update student ID
-		while (true) {
-			System.out.print("Update student ID? (Yes/No) ");
-			line = scanner.nextLine().toLowerCase();
-			if (line.equals("yes")) {
-				System.out.print("Student ID: #");
-				int newId = scanner.nextInt();
-				student.setId(newId);
-				System.out.println("Updated ID");
-				break;
-			} else if (line.equals("no")) {
-				break;
-			} else {
-				System.out.println("Please enter 'Yes' or 'No'");
-				continue;
-			}
-		}
-		System.out.println();
-		scanner.close();
-		
-//		Student student = new Student("Tom", 1122, new double[]{30.0, 40.0, 50.0});
-////		double[] marks = {30.0, 40.0, 50.0};
-////		Student student = new Student("Tom", 1122, marks);
-//		
-		System.out.printf("Name: %s\n", student.getName());
-		System.out.printf("ID: %d\n", student.getId());
-		System.out.printf("Mean marks: %.2f\n", student.getMeanExamMarks());
-		System.out.println(student);
+		Student[] studentsArray = students.toArray(new Student[students.size()]);
+		System.out.println(Arrays.toString(studentsArray));
 	}
 
 }
